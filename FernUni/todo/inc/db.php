@@ -1,6 +1,5 @@
 <?php
     // Exercise 2
-
     $db_host = "localhost";
     $db_name = "fern_uni";
     $db_user = "admin";

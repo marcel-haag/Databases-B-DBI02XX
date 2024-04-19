@@ -1,9 +1,9 @@
 <?php
     // Exercise 3
-
     session_start();
     $_SESSION['Benutzer']="";
     $_SESSION['Rechte']=0;
+    $_SESSION['BenutzerId']="";
 
     // Benutzereingabe auslesen nach POST event
     $frmBenutzer=$_POST['frmBenutzer'];
@@ -39,6 +39,7 @@
           // Session mit Benutzernamen erstellen
           $_SESSION['Benutzer']=$frmBenutzer;
           $_SESSION['Rechte']=1;
+          $_SESSION['BenutzerId']=$user['id'];
           // Weiterleiten zu einer anderen Seite oder Erfolgsmeldung anzeigen
           header('Location: todo.php');
       } else {
@@ -49,7 +50,6 @@
       // Benutzer nicht gefunden
       // echo "Benutzer nicht gefunden";
     }
-
 ?>
 
 <!doctype html>
@@ -63,7 +63,7 @@
         <label for="frmKennwort">Password:</label>
         <input id="frmKennwort" name="frmKennwort" type="password"/>
 
-        <input name="Login" type="submit"/>
+        <input type="submit" value="Login" />
     </form>
 
      <p style="text-align:center;">
