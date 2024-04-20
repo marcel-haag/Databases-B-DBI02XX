@@ -6,6 +6,11 @@
         echo "This was caught: " . $e->getMessage();
     }
 
+    $db_host = "localhost";
+    $db_name = "fern_uni";
+    $db_user = "admin";
+    $db_pass = "geheim";
+
     // Exercise 3
     session_start();
     if (!isset($_SESSION['Rechte']))
@@ -13,22 +18,16 @@
     if ($_SESSION['Rechte'] != 1)
       header('Location: login.php');
 
-
-    // Exercise 4
+    // Exervise 4
     $todos = [];
 
     try {
-      $db_host = "localhost";
-      $db_name = "fern_uni";
-      $db_user = "admin";
-      $db_pass = "geheim";
-
       $con = new PDO ('mysql:host='.$db_host.';dbname='.$db_name,$db_user,$db_pass);
 
       $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
       // Datenbankabfrage vorbereiten
-      $sql = "SELECT * FROM todo_table WHERE userId = :userId";
+      $sql = "SELECT * FROM todo_table WHERE UserId = :userId";
       $stmt = $con->prepare($sql);
       $stmt->bindParam(':userId', $_SESSION['BenutzerId']);
       $stmt->execute();
@@ -37,35 +36,55 @@
       echo "Connection failed: " . $e->getMessage();
     }
 
-    // Benutzereingabe auslesen nach POST event
-    $frmToDo=$_POST['frmToDo'];
 
-    echo $frmToDo;
 
-    // Exercise 6
-    function logout() {
-      // Session-Variablen löschen
-      session_unset();
+    // Exercise 5
+    // Todo hinzufügen
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['todo_hinzufügen'])) {
+        $neues_todo = $_POST['frmToDo'];
+        // Datumschema
+        $currentDate = date("Y-m-d");
 
-      // Session zerstören
-      session_destroy();
+        // Todo in Datenbank speichern
+        $sql = "INSERT INTO todo_table (UserId, Datum, todo) VALUES (:user_id, :date, :text)";
+        $stmt = $con->prepare($sql);
+        $stmt->bindParam(':user_id', $_SESSION['BenutzerId']);
+        $stmt->bindParam(':date', $currentDate);
+        $stmt->bindParam(':text', $neues_todo);
+        $stmt->execute();
 
-      // Weiterleitung zur Login-Seite
-      header("Location: login.php");
+        // Datenbankabfrage vorbereiten
+        $sql = "SELECT * FROM todo_table WHERE UserId = :userId";
+        $stmt = $con->prepare($sql);
+        $stmt->bindParam(':userId', $_SESSION['BenutzerId']);
+        $stmt->execute();
+        $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    if (isset($_POST['logout'])) {
-      logout();
-    }
+    // Todo löschen
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['todo_löschen'])) {
+      $todoIdToDelete = $_POST['todo_löschen'];
 
-    if (isset($_POST['todos_löschen'])) {
-      echo "ToDo: Alle TO-DOs löschen";
+      // Todo aus Datenbank löschen
+      $sql = "DELETE FROM todo_table WHERE id = :id";
+      $stmt = $con->prepare($sql);
+      $stmt->bindParam(':id', $todoIdToDelete);
+      $stmt->execute();
+
+      // Datenbankabfrage vorbereiten
+      $sql = "SELECT * FROM todo_table WHERE UserId = :userId";
+      $stmt = $con->prepare($sql);
+      $stmt->bindParam(':userId', $_SESSION['BenutzerId']);
+      $stmt->execute();
+      $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 ?>
 
 <!doctype html>
 <html>
-  <head><title>TO-DO WebApp</title></head>
+   <head>
+      <title>TO-DO WebApp</title>
+   </head>
    <body>
       <h2>Hallo <?php echo $_SESSION['Benutzer'];?>, Willkommen!</h2>
       <!-- <?php echo $_SESSION['BenutzerId'];?> -->
@@ -76,21 +95,26 @@
         <label for="frmToDo">Neues To-Do: </label>
         <input id="frmToDo" name="frmToDo" type="text"/>
 
-        <input type="submit" name="speichern" value="Speichern"/>
+        <input type="submit" name="todo_hinzufügen" value="Hinzufügen"/>
       </form>
 
       <br/>
 
-      <!-- Todo's anlegen -->
+      <!-- Exercise 5 -->
+      <!-- Todo's anzeigen -->
       <?php if (count($todos) > 0): ?>
-        <h3>Deine TODOs:</h3>
-        <ul>
-          <?php foreach ($todos as $todo): ?>
-            <li>
-              <?php echo $todo['todo']; ?> (Erstellt am: <?php echo $todo['datum']; ?>)
-            </li>
-          <?php endforeach; ?>
-        </ul>
+        <h3>ToDo's:</h3>
+
+        <?php foreach ($todos as $todo): ?>
+        <div class="todo-item">
+            <form method="post" style="display:inline;">
+                <input type="submit" value="✗">
+                <input type="hidden" name="todo_löschen" value="<?php echo $todo['id']; ?>">
+            </form>
+            <?php echo $todo['todo']; ?> (Erstelldatum: <?php echo $todo['Datum']; ?>)
+        </div>
+        <?php endforeach; ?>
+
       <?php else: ?>
         <p>Keine Einträge</p>
       <?php endif; ?>

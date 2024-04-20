@@ -12,6 +12,7 @@ To begin exploring our app, follow these simple steps to download and set up XAM
 3. Access the Application files: `/Applications/XAMPP/htdocs`
 4. Copy the `/FernUni` folder int the Application files 
 5. Open the PHPMyAdmin [Database](http://localhost/phpmyadmin/index.php)
-6. Open the [App](http://localhost/FernUni/)
+6. Create Database `fern_uni`
+6. Open the [App](http://localhost/FernUni/todo.php)
 
 Now you're all set to explore our small app with a database! 
