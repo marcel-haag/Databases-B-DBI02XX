@@ -26,7 +26,7 @@
 
       $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-      // Datenbankabfrage vorbereiten
+      // Todo's abfragen
       $sql = "SELECT * FROM todo_table WHERE UserId = :userId";
       $stmt = $con->prepare($sql);
       $stmt->bindParam(':userId', $_SESSION['BenutzerId']);
@@ -53,7 +53,7 @@
         $stmt->bindParam(':text', $neues_todo);
         $stmt->execute();
 
-        // Datenbankabfrage vorbereiten
+        // Todo's abfragen
         $sql = "SELECT * FROM todo_table WHERE UserId = :userId";
         $stmt = $con->prepare($sql);
         $stmt->bindParam(':userId', $_SESSION['BenutzerId']);
@@ -71,12 +71,42 @@
       $stmt->bindParam(':id', $todoIdToDelete);
       $stmt->execute();
 
-      // Datenbankabfrage vorbereiten
+      // Todo's abfragen
       $sql = "SELECT * FROM todo_table WHERE UserId = :userId";
       $stmt = $con->prepare($sql);
       $stmt->bindParam(':userId', $_SESSION['BenutzerId']);
       $stmt->execute();
       $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Exercise 6
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['todos_löschen'])) {
+      // SQL-Abfrage zum Löschen aller TODOs des aktuellen Benutzers
+      $stmt = $con->prepare("DELETE FROM todo_table WHERE UserId = :user_id");
+      $stmt->bindParam(':user_id', $_SESSION['BenutzerId']);
+      $stmt->execute();
+
+      // Todo's abfragen
+      $sql = "SELECT * FROM todo_table WHERE UserId = :userId";
+      $stmt = $con->prepare($sql);
+      $stmt->bindParam(':userId', $_SESSION['BenutzerId']);
+      $stmt->execute();
+      $todos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    function logout() {
+      // Session-Variablen löschen
+      session_unset();
+
+      // Session zerstören
+      session_destroy();
+
+      // Weiterleitung zur Login-Seite
+      header("Location: login.php");
+    }
+
+    if (isset($_POST['logout'])) {
+      logout();
     }
 ?>
 

@@ -28,9 +28,6 @@
       echo "Connection failed: " . $e->getMessage();
     }
 
-    // echo "username: " . $user['name'];
-    // echo "userpass: " . $user['password'];
-
     // Überprüfen, ob ein Benutzer mit dem eingegebenen Benutzernamen gefunden wurde
     if ($user) {
       // Passwort überprüfen
